@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
-import { 
-  FiSearch, FiHeart, FiShoppingBag, FiUser, 
-  FiMenu, FiX, FiSun, FiMoon, FiChevronDown, FiArrowRight 
+import {
+  FiSearch, FiHeart, FiShoppingBag, FiUser,
+  FiMenu, FiX, FiSun, FiMoon, FiChevronDown, FiArrowRight
 } from 'react-icons/fi';
 
 export const Navbar: React.FC = () => {
@@ -39,7 +39,7 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-50 w-full transition-all duration-300 glass shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          
+
           {/* Burger Menu for Mobile */}
           <div className="flex items-center md:hidden">
             <button
@@ -64,15 +64,15 @@ export const Navbar: React.FC = () => {
           <nav className="hidden md:flex space-x-8">
             <Link to="/" className="text-sm font-medium tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark dark:hover:text-brand-blush transition uppercase">Home</Link>
             <Link to="/shop" className="text-sm font-medium tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark dark:hover:text-brand-blush transition uppercase">Shop</Link>
-            
+
             {/* Elegant Categories Dropdown */}
             <div className="relative group">
               <button className="flex items-center text-sm font-medium tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark dark:hover:text-brand-blush transition uppercase gap-1">
                 Collections <FiChevronDown className="h-3 w-3" />
               </button>
               <div className="absolute top-full -left-4 w-48 mt-2 py-2 glass rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                <Link to="/shop?category=Sarees" className="block px-4 py-2 text-xs font-medium tracking-wide hover:bg-brand-blush-light dark:hover:bg-brand-charcoal text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark">Sarees</Link>
-                <Link to="/shop?category=Gowns" className="block px-4 py-2 text-xs font-medium tracking-wide hover:bg-brand-blush-light dark:hover:bg-brand-charcoal text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark">Gowns</Link>
+                <Link to="/shop?category=Kurtis" className="block px-4 py-2 text-xs font-medium tracking-wide hover:bg-brand-blush-light dark:hover:bg-brand-charcoal text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark">Kurtis</Link>
+                <Link to="/shop?category=Cotton Wear" className="block px-4 py-2 text-xs font-medium tracking-wide hover:bg-brand-blush-light dark:hover:bg-brand-charcoal text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark">Cotton Wear</Link>
                 <Link to="/shop?category=Wedding Collection" className="block px-4 py-2 text-xs font-medium tracking-wide hover:bg-brand-blush-light dark:hover:bg-brand-charcoal text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark">Wedding Collection</Link>
                 <Link to="/shop?category=Western Wear" className="block px-4 py-2 text-xs font-medium tracking-wide hover:bg-brand-blush-light dark:hover:bg-brand-charcoal text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark">Western Wear</Link>
               </div>
@@ -84,7 +84,7 @@ export const Navbar: React.FC = () => {
 
           {/* Right Action Icons & Search */}
           <div className="flex-1 flex items-center justify-end space-x-6">
-            
+
             {/* Search Input Panel */}
             <div className="relative hidden lg:block w-64">
               <form onSubmit={handleSearchSubmit}>
@@ -205,7 +205,7 @@ export const Navbar: React.FC = () => {
         <div className="fixed inset-0 z-50 flex md:hidden">
           {/* Overlay */}
           <div className="fixed inset-0 bg-black/45 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}></div>
-          
+
           {/* Drawer Content */}
           <div className="relative w-4/5 max-w-sm glass h-full p-6 shadow-2xl flex flex-col justify-between z-50 animate-slide-in">
             <div>

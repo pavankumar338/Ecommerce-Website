@@ -3,21 +3,21 @@ import { FiStar } from 'react-icons/fi';
 
 const testimonials = [
   {
-    name: "Genevieve Vance",
+    name: "Sanjana",
     role: "Verified Buyer",
     rating: 5,
     text: "The Ethereal Rose Silk Saree surpassed all my expectations. The zari threads are incredibly soft and the drape of the silk feels so luxurious. Viora is my new go-to boutique!",
     avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop&q=80"
   },
   {
-    name: "Pooja Mehta",
+    name: "Pooja ",
     role: "Fashion Consultant",
     rating: 5,
     text: "I recommended the organza wedding lehenga to one of my brides. The craftsmanship, sequins, and detailing were immaculate. Elegant pastel tones are exactly what modern brides need.",
     avatar: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=100&auto=format&fit=crop&q=80"
   },
   {
-    name: "Sophia Henderson",
+    name: "Akshaya",
     role: "Verified Buyer",
     rating: 5,
     text: "Minimalist, luxury office blazers that feel tailored and elegant. The premium fabric keeps its silhouette all day. Excellent concierge customer support as well.",
@@ -29,7 +29,7 @@ export const Reviews: React.FC = () => {
   return (
     <section className="bg-brand-cream-light dark:bg-brand-charcoal/10 py-20 px-4 sm:px-6 lg:px-8 border-t border-brand-beige-dark/20 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        
+
         {/* Header Info */}
         <div className="text-center mb-16">
           <span className="text-[10px] font-bold tracking-widest text-brand-blush-dark uppercase">Client Testimonials</span>
