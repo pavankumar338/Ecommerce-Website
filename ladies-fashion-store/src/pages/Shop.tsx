@@ -78,10 +78,10 @@ export const Shop: React.FC = () => {
 
 
   const patterns = [
-    { name: 'Solid Plain', price: 0 },
-    { name: 'Floral Print', price: 10 },
-    { name: 'Hand Embroidery', price: 35 },
-    { name: 'Zari Weaving', price: 50 }
+    { name: 'Solid Plain', price: 0, desc: 'Minimalist solid theme' },
+    { name: 'Floral Print', price: 10, desc: 'Charming nature prints' },
+    { name: 'Hand Embroidery', price: 35, desc: 'Exquisite thread work' },
+    { name: 'Zari Weaving', price: 50, desc: 'Regal gold thread motifs' }
   ];
 
   const patternImages: Record<string, string> = {
