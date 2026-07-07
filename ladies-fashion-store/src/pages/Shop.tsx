@@ -91,22 +91,7 @@ export const Shop: React.FC = () => {
     setActiveImgIndex((prev) => (prev - 1 + designImages.length) % designImages.length);
   };
 
-  // Horizontal Slider Navigation Functions (Flipkart style)
-  const scrollSliderLeft = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const slider = document.getElementById('design-thumbnail-slider');
-    if (slider) {
-      slider.scrollBy({ left: -160, behavior: 'smooth' });
-    }
-  };
 
-  const scrollSliderRight = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const slider = document.getElementById('design-thumbnail-slider');
-    if (slider) {
-      slider.scrollBy({ left: 160, behavior: 'smooth' });
-    }
-  };
 
   // Magnifying Zoom Effect for Desktop Main Image
   const handleGalleryMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -518,18 +503,17 @@ export const Shop: React.FC = () => {
                     <div
                       key={item.name}
                       onClick={() => setFabricColor(item.name)}
-                      className={`group overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 bg-white dark:bg-brand-charcoal/20 flex flex-col justify-between h-[180px] ${
-                        fabricColor === item.name 
-                          ? 'border-brand-gold bg-brand-gold/5 dark:bg-brand-gold/10 shadow-md' 
-                          : 'border-brand-beige-dark/20 hover:border-brand-beige-dark/50'
-                      }`}
+                      className={`group overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 bg-white dark:bg-brand-charcoal/20 flex flex-col justify-between h-[180px] ${fabricColor === item.name
+                        ? 'border-brand-gold bg-brand-gold/5 dark:bg-brand-gold/10 shadow-md'
+                        : 'border-brand-beige-dark/20 hover:border-brand-beige-dark/50'
+                        }`}
                     >
                       {/* Image Preview */}
                       <div className="relative flex-1 overflow-hidden bg-brand-cream-dark/10">
                         <img
                           src={item.image}
                           alt={item.name}
-                          className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
+                          className="w-full h-full object-contain transition-all duration-700 ease-out group-hover:scale-125"
                           loading="lazy"
                         />
                         {fabricColor === item.name && (
@@ -557,125 +541,55 @@ export const Shop: React.FC = () => {
                 <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">3. Design Details</h3>
                 <p className="text-xs text-brand-charcoal/50 dark:text-brand-cream/50 mb-8">Personalize your design details by choosing from our tailored collections.</p>
 
-                {/* Dual Column Layout: Left Column is Image Gallery, Right Column is Customization Controls */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-6xl mx-auto">
-
-                  {/* Left Column: Product Image Preview (span 6) */}
-                  <div className="lg:col-span-6 flex flex-col items-center">
+                {/* Grid of stitching designs: 2 columns on mobile, 4 columns on desktop */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
+                  {designImages.map((img, idx) => (
                     <div
-                      className="relative w-full aspect-[3/4] max-h-[480px] rounded-2xl border border-brand-beige-dark/20 overflow-hidden bg-white dark:bg-brand-charcoal/10 cursor-zoom-in group select-none"
-                      onMouseMove={handleGalleryMouseMove}
-                      onMouseLeave={handleGalleryMouseLeave}
+                      key={idx}
+                      onClick={() => setActiveImgIndex(idx)}
+                      className={`group overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 bg-white dark:bg-brand-charcoal/20 flex flex-col justify-between h-[180px] sm:h-[240px] ${
+                        activeImgIndex === idx
+                          ? 'border-brand-gold bg-brand-gold/5 dark:bg-brand-gold/10 shadow-md'
+                          : 'border-brand-beige-dark/20 hover:border-brand-beige-dark/50'
+                      }`}
                     >
-                      {/* Main Image */}
-                      <img
-                        src={designImages[activeImgIndex]}
-                        alt={`${dressType} Design ${activeImgIndex + 1}`}
-                        style={galleryZoomStyle}
-                        className="w-full h-full object-contain object-center transition-transform duration-100 ease-out"
-                      />
-
-                      {/* Navigation Arrows on the Large Image */}
-                      <button
-                        onClick={prevImage}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/85 dark:bg-black/70 p-2.5 rounded-full shadow-md text-brand-charcoal dark:text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-gold hover:text-brand-charcoal hover:scale-105 duration-200"
-                        aria-label="Previous Design"
-                      >
-                        <FiChevronLeft className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/85 dark:bg-black/70 p-2.5 rounded-full shadow-md text-brand-charcoal dark:text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-gold hover:text-brand-charcoal hover:scale-105 duration-200"
-                        aria-label="Next Design"
-                      >
-                        <FiChevronRight className="h-5 w-5" />
-                      </button>
-
-                      {/* Design Index Badge */}
-                      <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xs text-white text-[10px] px-2.5 py-1 rounded-full font-bold tracking-wider">
-                        {activeImgIndex + 1} / {designImages.length}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column: Customization Selector controls (span 6) */}
-                  <div className="lg:col-span-6 flex flex-col justify-between h-full space-y-8 py-2">
-                    <div className="space-y-6">
-                      {/* Product Title Heading */}
-                      <div>
-                        <span className="text-[10px] font-bold tracking-widest text-brand-gold uppercase">Tailoring Collection</span>
-                        <h3 className="font-serif text-3xl font-bold text-brand-charcoal dark:text-white mt-1">Custom {dressType}</h3>
-                        <p className="text-xs text-brand-charcoal/50 dark:text-brand-cream/50 mt-1">
-                          Select from our 10 curated stitching blueprints.
-                        </p>
-                      </div>
-
-                      {/* Selected Design Section (Flipkart style) */}
-                      <div>
-                        <div className="flex items-center justify-between mb-3 border-b border-brand-beige-dark/10 pb-2">
-                          <h4 className="text-xs uppercase font-bold tracking-wider text-brand-blush-dark">
-                            Selected Design: <span className="font-bold text-brand-gold normal-case ml-1">Design #{activeImgIndex + 1}</span>
-                          </h4>
-                        </div>
-
-                        {/* Horizontal Slider with Left & Right Arrows */}
-                        <div className="relative flex items-center group/slider px-4">
-                          {/* Left Scroll Arrow */}
-                          <button
-                            onClick={scrollSliderLeft}
-                            className="absolute left-0 z-10 bg-white dark:bg-brand-charcoal border border-brand-beige-dark/30 hover:border-brand-gold shadow-md rounded-full p-1.5 text-brand-charcoal dark:text-white hover:bg-brand-gold hover:text-brand-charcoal transition duration-300"
-                            aria-label="Scroll left"
-                          >
-                            <FiChevronLeft className="h-4 w-4" />
-                          </button>
-
-                          {/* Slider Row */}
-                          <div
-                            id="design-thumbnail-slider"
-                            className="flex gap-3 overflow-x-auto py-2 px-1 select-none scroll-smooth w-full snap-x"
-                            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                          >
-                            {designImages.map((img, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => setActiveImgIndex(idx)}
-                                className={`w-16 h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 snap-center transition-all duration-350 bg-white ${activeImgIndex === idx
-                                    ? 'border-brand-gold shadow-md scale-105 bg-brand-gold/10'
-                                    : 'border-brand-beige-dark/20 hover:border-brand-beige-dark/60'
-                                  }`}
-                              >
-                                <img src={img} alt={`Design option ${idx + 1}`} className="w-full h-full object-cover" />
-                              </button>
-                            ))}
+                      {/* Image Preview with Zoom on hover */}
+                      <div className="relative flex-1 overflow-hidden bg-brand-cream-dark/10">
+                        <img
+                          src={img}
+                          alt={`Design blueprint ${idx + 1}`}
+                          className="w-full h-full object-contain transition-all duration-700 ease-out group-hover:scale-110"
+                          loading="lazy"
+                        />
+                        {activeImgIndex === idx && (
+                          <div className="absolute top-2.5 right-2.5 bg-brand-gold text-brand-charcoal p-1 rounded-full shadow-md z-10">
+                            <FiCheck className="h-3 w-3" />
                           </div>
+                        )}
+                      </div>
 
-                          {/* Right Scroll Arrow */}
-                          <button
-                            onClick={scrollSliderRight}
-                            className="absolute right-0 z-10 bg-white dark:bg-brand-charcoal border border-brand-beige-dark/30 hover:border-brand-gold shadow-md rounded-full p-1.5 text-brand-charcoal dark:text-white hover:bg-brand-gold hover:text-brand-charcoal transition duration-300"
-                            aria-label="Scroll right"
-                          >
-                            <FiChevronRight className="h-4 w-4" />
-                          </button>
-                        </div>
+                      {/* Content Label */}
+                      <div className="p-3 border-t border-brand-beige-dark/10 text-center bg-transparent">
+                        <span className="font-semibold text-xs text-brand-charcoal dark:text-white transition-colors duration-300 group-hover:text-brand-gold">
+                          Design #{idx + 1}
+                        </span>
                       </div>
                     </div>
-
-                    {/* Price Breakdown in Design Details Panel */}
-                    <div className="pt-6 border-t border-brand-beige-dark/15 flex justify-between items-center">
-                      <div>
-                        <span className="text-[10px] uppercase font-bold text-brand-charcoal/40 dark:text-brand-cream/40">Est. Total Cost</span>
-                        <div className="text-2xl font-bold text-brand-gold">₹{totalPrice}</div>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-[10px] uppercase font-bold text-brand-charcoal/40 dark:text-brand-cream/40">50% Advance Tailoring Fee</span>
-                        <div className="text-base font-semibold text-brand-charcoal dark:text-white">₹{halfPrice}</div>
-                      </div>
-                    </div>
-
-                  </div>
-
+                  ))}
                 </div>
+
+                {/* Price Breakdown in Design Details Panel */}
+                <div className="mt-8 pt-6 border-t border-brand-beige-dark/15 flex justify-between items-center max-w-xl">
+                  <div>
+                    <span className="text-[10px] uppercase font-bold text-brand-charcoal/40 dark:text-brand-cream/40">Est. Total Cost</span>
+                    <div className="text-2xl font-bold text-brand-gold">₹{totalPrice}</div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase font-bold text-brand-charcoal/40 dark:text-brand-cream/40">50% Advance Tailoring Fee</span>
+                    <div className="text-base font-semibold text-brand-charcoal dark:text-white">₹{halfPrice}</div>
+                  </div>
+                </div>
+
               </div>
             )}
 
