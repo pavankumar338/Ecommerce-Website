@@ -95,8 +95,8 @@ export const Shop: React.FC = () => {
   const basePrice = dressTypes.find(d => d.name === dressType)?.price || 120;
   const fabricPrice = fabrics.find(f => f.name === fabric)?.price || 0;
   const patternPrice = patterns.find(p => p.name === pattern)?.price || 0;
-  const totalPrice = basePrice + fabricPrice + patternPrice;
-  const halfPrice = totalPrice / 2;
+  const totalPrice = dressType === 'Kurti' ? 2 : (basePrice + fabricPrice + patternPrice);
+  const halfPrice = dressType === 'Kurti' ? 1 : (totalPrice / 2);
 
   const handleRazorpayPayment = async (e: React.FormEvent) => {
     e.preventDefault();
