@@ -3,6 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { toast } from 'react-toastify';
 
+const loadRazorpayScript = (): Promise<boolean> => {
+  return new Promise((resolve) => {
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
 export const Checkout: React.FC = () => {
   const { cart, getDiscountedTotal, placeOrder } = useShop();
   const navigate = useNavigate();
@@ -17,6 +31,7 @@ export const Checkout: React.FC = () => {
     country: 'United States'
   });
   const [paymentMethod, setPaymentMethod] = useState('COD');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (cart.length === 0) {
     return (
@@ -41,12 +56,72 @@ export const Checkout: React.FC = () => {
       return;
     }
 
-    const order = await placeOrder(form, paymentMethod);
-    if (order) {
-      toast.success("Order Placed Successfully! 🎉");
-      navigate(`/order-success?orderId=${order.id}`);
+    if (paymentMethod === 'Razorpay') {
+      setIsSubmitting(true);
+      const isLoaded = await loadRazorpayScript();
+      if (!isLoaded) {
+        toast.error("Failed to load Razorpay SDK. Please check your internet connection.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const totalAmount = getDiscountedTotal();
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dresiqPaymentKey',
+        amount: totalAmount * 100, // Amount in paise
+        currency: 'INR',
+        name: 'Dresiq',
+        description: 'Catalog Products Purchase',
+        image: '/favicon.svg',
+        handler: async function (response: any) {
+          try {
+            const order = await placeOrder(form, 'Razorpay');
+            setIsSubmitting(false);
+            if (order) {
+              toast.success(`Order Placed Successfully! Payment ID: ${response.razorpay_payment_id} 🎉`);
+              navigate(`/order-success?orderId=${order.id}`);
+            } else {
+              toast.error("Failed to store order after payment.");
+            }
+          } catch (err) {
+            setIsSubmitting(false);
+            toast.error("Error creating order.");
+          }
+        },
+        prefill: {
+          name: form.name,
+          email: form.email,
+          contact: form.phone
+        },
+        theme: {
+          color: '#C5A880'
+        },
+        modal: {
+          ondismiss: function() {
+            setIsSubmitting(false);
+            toast.warning("Payment cancelled by user.");
+          }
+        }
+      };
+
+      try {
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        setIsSubmitting(false);
+        toast.error("An error occurred while opening the payment gateway.");
+      }
     } else {
-      toast.error("Failed to place order.");
+      // Cash on Delivery
+      setIsSubmitting(true);
+      const order = await placeOrder(form, paymentMethod);
+      setIsSubmitting(false);
+      if (order) {
+        toast.success("Order Placed Successfully! 🎉");
+        navigate(`/order-success?orderId=${order.id}`);
+      } else {
+        toast.error("Failed to place order.");
+      }
     }
   };
 
@@ -201,9 +276,10 @@ export const Checkout: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-brand-charcoal text-white text-xs font-bold py-4 rounded-xl hover:bg-brand-blush-dark transition duration-300 uppercase tracking-widest mt-4"
+              disabled={isSubmitting}
+              className="w-full bg-brand-charcoal text-white text-xs font-bold py-4 rounded-xl hover:bg-brand-blush-dark transition duration-300 uppercase tracking-widest mt-4 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Pay & Place Order
+              {isSubmitting ? (paymentMethod === 'Razorpay' ? "Opening Razorpay..." : "Placing Order...") : "Pay & Place Order"}
             </button>
           </div>
 

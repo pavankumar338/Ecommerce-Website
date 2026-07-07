@@ -4,6 +4,7 @@ import { useShop } from '../context/ShopContext';
 import { ProductCard } from '../components/ProductCard';
 import { FiFilter, FiSliders, FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import { supabase } from '../services/supabase';
 
 const loadRazorpayScript = (): Promise<boolean> => {
   return new Promise((resolve) => {
@@ -20,7 +21,7 @@ const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export const Shop: React.FC = () => {
-  const { products, categories } = useShop();
+  const { products, categories, user } = useShop();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const categoryParam = searchParams.get('category');
@@ -116,10 +117,40 @@ export const Shop: React.FC = () => {
       name: 'Dresiq',
       description: `Bespoke Custom Tailoring Advance - ${dressType}`,
       image: '/favicon.svg',
-      handler: function (response: any) {
-        setIsSubmitting(false);
-        setCustomStep(5);
-        toast.success(`Payment successful! Transaction ID: ${response.razorpay_payment_id} ✂️`);
+      handler: async function (response: any) {
+        try {
+          const customOrder = {
+            user_id: user?.id || null,
+            customer_name: paymentForm.cardName,
+            customer_email: paymentForm.email,
+            customer_phone: paymentForm.phone,
+            dress_type: dressType,
+            fabric: fabric,
+            fabric_color: fabricColor,
+            pattern: pattern,
+            total_price: totalPrice,
+            advance_paid: halfPrice,
+            due_amount: halfPrice,
+            razorpay_payment_id: response.razorpay_payment_id,
+            payment_status: 'Paid (50% Advance)',
+            status: 'Stitching'
+          };
+
+          const { error } = await supabase.from('custom_orders').insert(customOrder);
+
+          if (error) {
+            console.error("Database insert error:", error);
+            toast.error("Payment successful, but failed to save order details. Please contact support.");
+          } else {
+            toast.success(`Custom order booked successfully! ID: ${response.razorpay_payment_id} ✂️`);
+            setCustomStep(5);
+          }
+        } catch (err) {
+          console.error("Order insertion error:", err);
+          toast.error("An unexpected error occurred while saving your order.");
+        } finally {
+          setIsSubmitting(false);
+        }
       },
       prefill: {
         name: paymentForm.cardName,
