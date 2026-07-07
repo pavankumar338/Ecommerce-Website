@@ -35,7 +35,7 @@ export const Register: React.FC = () => {
           data: {
             name: form.name,
             phone: form.phone,
-            role: form.email.toLowerCase() === 'admin@viora.com' ? 'admin' : 'user'
+            role: form.email.toLowerCase() === 'admin@dresiq.com' ? 'admin' : 'user'
           }
         }
       });
@@ -57,7 +57,7 @@ export const Register: React.FC = () => {
         
         <div className="text-center mb-8">
           <span className="font-serif text-3xl font-bold tracking-widest text-brand-charcoal dark:text-white">
-            VIORA<span className="text-brand-blush-dark">.</span>
+            DRESIQ<span className="text-brand-blush-dark">.</span>
           </span>
           <h2 className="text-xs uppercase font-bold text-brand-charcoal/50 dark:text-brand-cream/50 tracking-wider mt-4">Create Account</h2>
         </div>
@@ -82,7 +82,7 @@ export const Register: React.FC = () => {
               type="email"
               name="email"
               required
-              placeholder="aditi@viora.com"
+              placeholder="aditi@dresiq.com"
               value={form.email}
               onChange={handleInputChange}
               className="w-full bg-brand-cream-light dark:bg-brand-charcoal/40 text-xs px-3.5 py-2.5 rounded-lg border border-brand-beige-dark/40 focus:outline-none focus:border-brand-blush-dark dark:text-brand-cream"

@@ -22,7 +22,7 @@ export const Login: React.FC = () => {
       if (error) throw error;
 
       toast.success("Signed in successfully! Welcome back. ✨");
-      if (email.toLowerCase() === 'admin@viora.com') {
+      if (email.toLowerCase() === 'admin@dresiq.com') {
         navigate('/admin');
       } else {
         navigate('/');
@@ -40,7 +40,7 @@ export const Login: React.FC = () => {
         
         <div className="text-center mb-8">
           <span className="font-serif text-3xl font-bold tracking-widest text-brand-charcoal dark:text-white">
-            VIORA<span className="text-brand-blush-dark">.</span>
+            DRESIQ<span className="text-brand-blush-dark">.</span>
           </span>
           <h2 className="text-xs uppercase font-bold text-brand-charcoal/50 dark:text-brand-cream/50 tracking-wider mt-4">Welcome Back</h2>
         </div>
@@ -51,7 +51,7 @@ export const Login: React.FC = () => {
             <input
               type="email"
               required
-              placeholder="concierge@viorafashion.com"
+              placeholder="concierge@dresiq.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-brand-cream-light dark:bg-brand-charcoal/40 text-xs px-3.5 py-2.5 rounded-lg border border-brand-beige-dark/40 focus:outline-none focus:border-brand-blush-dark dark:text-brand-cream"
@@ -83,7 +83,7 @@ export const Login: React.FC = () => {
         </form>
 
         <p className="text-center text-xs text-brand-charcoal/60 dark:text-brand-cream/60 mt-8 font-medium">
-          New to Viora? <Link to="/register" className="text-brand-blush-dark font-bold hover:underline">Create Account</Link>
+          New to Dresiq? <Link to="/register" className="text-brand-blush-dark font-bold hover:underline">Create Account</Link>
         </p>
 
       </div>

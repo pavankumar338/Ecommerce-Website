@@ -1,16 +1,14 @@
 import React from 'react';
-import { useShop } from '../context/ShopContext';
+
 import { Hero } from '../components/Hero';
 import { FeaturedCollections } from '../components/FeaturedCollections';
-import { ProductCard } from '../components/ProductCard';
+
 import { Reviews } from '../components/Reviews';
 import { InstagramGallery } from '../components/InstagramGallery';
 
 export const Home: React.FC = () => {
-  const { products } = useShop();
 
-  const trendingProducts = products.filter(p => p.trending).slice(0, 4);
-  const newArrivals = products.filter(p => p.newArrival).slice(0, 4);
+
 
   return (
     <div className="w-full">
@@ -21,20 +19,7 @@ export const Home: React.FC = () => {
       <FeaturedCollections />
 
 
-      {/* Trending Dresses Grid */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-[10px] font-bold tracking-widest text-brand-blush-dark uppercase">Trending Collection</span>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-2 text-brand-charcoal dark:text-white">Trending Now</h2>
-          <div className="h-0.5 w-16 bg-brand-blush-dark mx-auto mt-4"></div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {trendingProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </section>
 
       {/* Promotional Callout Banner */}
       <section className="relative py-24 bg-cover bg-center overflow-hidden" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1600')` }}>
@@ -56,20 +41,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* New Arrivals Grid */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <span className="text-[10px] font-bold tracking-widest text-brand-blush-dark uppercase">Fresh Out Of The Loom</span>
-          <h2 className="font-serif text-3xl sm:text-4xl font-bold mt-2 text-brand-charcoal dark:text-white">New Arrivals</h2>
-          <div className="h-0.5 w-16 bg-brand-blush-dark mx-auto mt-4"></div>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {newArrivals.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      </section>
 
       {/* Testimonials section */}
       <Reviews />

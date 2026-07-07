@@ -3,32 +3,28 @@ import { useNavigate } from 'react-router-dom';
 
 const collections = [
   {
-    name: "Heritage Sarees",
-    description: "Pure Silk & Zari Weaves",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&auto=format&fit=crop&q=80",
-    category: "Sarees",
-    gridArea: "lg:col-span-2 lg:row-span-1"
+    name: "Anarkalis",
+    description: "Elegant Anarkali Sets",
+    image: "/anarkalis.png",
+    category: "Sarees"
   },
   {
-    name: "Luxury Gowns",
-    description: "Premium Silk Chiffon",
-    image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&auto=format&fit=crop&q=80",
-    category: "Lehangas",
-    gridArea: "lg:col-span-1 lg:row-span-1"
+    name: "Dupatta",
+    description: "Luxury Handwoven Dupattas",
+    image: "/dupatta.png",
+    category: "Lehangas"
   },
   {
-    name: "Wedding Collection",
-    description: "Intricately Embellished Bridal Wear",
-    image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=600&auto=format&fit=crop&q=80",
-    category: "Cotton Wear",
-    gridArea: "lg:col-span-1 lg:row-span-2"
+    name: "Kurti",
+    description: "Linen & Cotton Kurtis",
+    image: "/kurtis.png",
+    category: "Cotton Wear"
   },
   {
-    name: "Western Chic",
-    description: "Summer Wrap Dresses & Maxis",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&auto=format&fit=crop&q=80",
-    category: "Western Wear",
-    gridArea: "lg:col-span-2 lg:row-span-1"
+    name: "Lehenga",
+    description: "Bridal & Festive Lehengas",
+    image: "/lehenga.png",
+    category: "Western Wear"
   }
 ];
 
@@ -49,13 +45,13 @@ export const FeaturedCollections: React.FC = () => {
         <div className="h-0.5 w-16 bg-brand-blush-dark mx-auto mt-4"></div>
       </div>
 
-      {/* Grid Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[280px]">
+      {/* Grid Layout - 2 columns on mobile/tablet, 4 columns on desktop for perfect portrait aspect ratio */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {collections.map((col, idx) => (
           <div
             key={idx}
             onClick={() => handleCollectionClick(col.category)}
-            className={`group relative overflow-hidden rounded-2xl shadow-sm border border-brand-beige-dark/15 cursor-pointer transition-all duration-500 ${col.gridArea}`}
+            className="group relative overflow-hidden rounded-2xl shadow-sm border border-brand-beige-dark/15 cursor-pointer transition-all duration-500 h-[280px] sm:h-[380px] lg:h-[440px]"
           >
 
             {/* Background Zoom Image */}
@@ -65,18 +61,18 @@ export const FeaturedCollections: React.FC = () => {
             ></div>
 
             {/* Soft overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent group-hover:from-black/90 transition-all duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent group-hover:from-black/90 transition-all duration-300"></div>
 
             {/* Collection copy */}
-            <div className="absolute bottom-6 left-6 right-6 text-white flex flex-col justify-end">
-              <span className="text-[9px] uppercase font-bold tracking-widest text-brand-blush">
+            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 text-white flex flex-col justify-end">
+              <span className="text-[8px] sm:text-[9px] uppercase font-bold tracking-widest text-brand-blush">
                 {col.description}
               </span>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold mt-2 tracking-wide">
+              <h3 className="font-serif text-base sm:text-xl font-bold mt-1 sm:mt-2 tracking-wide leading-tight">
                 {col.name}
               </h3>
-              <div className="overflow-hidden mt-3">
-                <span className="inline-flex items-center gap-1 text-[10px] uppercase font-bold tracking-widest text-brand-blush-dark transition-all duration-300 transform translate-y-8 group-hover:translate-y-0">
+              <div className="overflow-hidden mt-2 sm:mt-3">
+                <span className="inline-flex items-center gap-1 text-[9px] uppercase font-bold tracking-widest text-brand-blush-dark transition-all duration-300 transform translate-y-8 group-hover:translate-y-0">
                   Shop Collection &rarr;
                 </span>
               </div>

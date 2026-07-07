@@ -23,7 +23,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-b border-brand-beige-dark/20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           <div>
-            <h3 className="font-serif text-2xl font-bold tracking-wide">Join the Viora Club</h3>
+            <h3 className="font-serif text-2xl font-bold tracking-wide">Join the Dresiq Club</h3>
             <p className="text-sm mt-2 text-brand-charcoal/60 dark:text-brand-cream/60">
               Subscribe to receive updates on new collections, exclusive sales, and a 10% discount on your first order.
             </p>
@@ -56,7 +56,7 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           <div>
             <span className="font-serif text-2xl font-bold tracking-widest text-brand-charcoal dark:text-brand-cream">
-              VIORA<span className="text-brand-blush-dark">.</span>
+              DRESIQ<span className="text-brand-blush-dark">.</span>
             </span>
             <p className="mt-4 text-xs leading-relaxed text-brand-charcoal/60 dark:text-brand-cream/60">
               A luxury boutique clothing line bringing you premium linen kurtas, authentic handwoven silk sarees, custom bridal lehengas, and contemporary western styles. Embodying grace, heritage, and modern chic.
@@ -122,7 +122,7 @@ export const Footer: React.FC = () => {
 
       {/* Bottom Bar */}
       <div className="bg-brand-beige/35 dark:bg-brand-charcoal/50 py-6 text-center text-xs text-brand-charcoal/50 dark:text-brand-cream/40">
-        <p>&copy; {new Date().getFullYear()} VIORA. Crafted for premium elegance. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} DRESIQ. Crafted for premium elegance. All rights reserved.</p>
       </div>
 
     </footer>

@@ -125,7 +125,7 @@ const mockProducts: Product[] = [
     price: 180,
     discountPrice: 149,
     category: "Sarees",
-    brand: "Viora Heritage",
+    brand: "Dresiq Heritage",
     color: ["Blush Pink", "Soft Gold"],
     sizes: ["One Size"],
     images: [
@@ -221,7 +221,7 @@ const mockProducts: Product[] = [
     price: 130,
     discountPrice: 110,
     category: "Ethnic Wear",
-    brand: "Viora Heritage",
+    brand: "Dresiq Heritage",
     color: ["Blush Pink"],
     sizes: ["S", "M", "L", "XL"],
     images: [
@@ -617,7 +617,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           name: email.split('@')[0],
           phone: '',
           address: '',
-          role: email === 'admin@viora.com' ? 'admin' : 'user'
+          role: email === 'admin@dresiq.com' ? 'admin' : 'user'
         };
         await supabase.from('profiles').insert(newProf);
         profile = newProf;

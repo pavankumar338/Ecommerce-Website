@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { toast } from 'react-toastify';
-import { 
-  FiDollarSign, FiShoppingBag, FiUsers, 
+import {
+  FiDollarSign, FiShoppingBag, FiUsers,
   FiPercent, FiPlus, FiTrash2, FiEdit,
   FiUpload, FiLoader
 } from 'react-icons/fi';
@@ -70,7 +70,7 @@ const dataURLtoBlob = (dataurl: string): Blob => {
 };
 
 export const AdminDashboard: React.FC = () => {
-  const { 
+  const {
     user, products, orders, seedDatabase, coupons, addCoupon, deleteCoupon,
     createProduct, updateProduct, deleteProduct, categories
   } = useShop();
@@ -205,12 +205,12 @@ export const AdminDashboard: React.FC = () => {
       try {
         // Compress first
         const compressedBase64 = await compressImage(file);
-        
+
         // Try uploading to Supabase
         const blob = dataURLtoBlob(compressedBase64);
         const fileExt = file.name.split('.').pop() || 'jpg';
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-        
+
         const { error } = await supabase.storage
           .from('product-images')
           .upload(fileName, blob, { contentType: 'image/jpeg', cacheControl: '3600', upsert: true });
@@ -223,7 +223,7 @@ export const AdminDashboard: React.FC = () => {
           const { data: publicUrlData } = supabase.storage
             .from('product-images')
             .getPublicUrl(fileName);
-            
+
           newImages.push(publicUrlData.publicUrl);
           successCount++;
         }
@@ -308,7 +308,7 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      
+
       {/* Page Header */}
       <div className="mb-12 border-b border-brand-beige-dark/15 pb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -333,7 +333,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="space-y-12">
           {/* Stats Cards Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            
+
             <div className="bg-white dark:bg-brand-charcoal/20 p-6 rounded-2xl border border-brand-beige-dark/15 flex items-center justify-between">
               <div>
                 <span className="text-[10px] text-brand-charcoal/40 dark:text-brand-cream/40 uppercase font-bold tracking-wider">Total Sales</span>
@@ -420,7 +420,7 @@ export const AdminDashboard: React.FC = () => {
               >
                 Seed Catalog to Supabase
               </button>
-              <button 
+              <button
                 onClick={openAddModal}
                 className="bg-brand-charcoal text-white text-xs font-semibold px-4 py-2.5 rounded-lg flex items-center gap-1.5 hover:bg-brand-blush-dark transition"
               >
@@ -441,13 +441,13 @@ export const AdminDashboard: React.FC = () => {
                 <div className="flex items-center gap-6">
                   <span className="font-bold">₹{prod.discountPrice || prod.price}</span>
                   <div className="flex gap-2">
-                    <button 
+                    <button
                       onClick={() => openEditModal(prod)}
                       className="p-2 hover:bg-brand-blush/30 rounded-lg text-brand-charcoal/60 dark:text-brand-cream/60"
                     >
                       <FiEdit />
                     </button>
-                    <button 
+                    <button
                       onClick={() => handleDeleteProduct(prod.id)}
                       className="p-2 hover:bg-red-50 rounded-lg text-red-500"
                     >
@@ -493,7 +493,7 @@ export const AdminDashboard: React.FC = () => {
       {/* TAB: Coupon Creation and lists */}
       {activeTab === 'coupons' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Create coupon form */}
           <div className="lg:col-span-1 bg-white dark:bg-brand-charcoal/20 p-6 rounded-2xl border border-brand-beige-dark/15">
             <h3 className="font-serif text-sm font-bold uppercase tracking-wider mb-4 border-b border-brand-beige-dark/10 pb-3">Create Coupon</h3>
@@ -563,13 +563,13 @@ export const AdminDashboard: React.FC = () => {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-brand-charcoal/40 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white dark:bg-brand-charcoal w-full max-w-2xl rounded-3xl border border-brand-beige-dark/20 p-8 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex justify-between items-center border-b border-brand-beige-dark/10 pb-4">
               <h3 className="font-serif text-lg font-bold text-brand-charcoal dark:text-white">
                 {editingProduct ? 'Edit Fashion Product' : 'Add New Fashion Product'}
               </h3>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-brand-charcoal/50 dark:text-brand-cream/50 hover:text-brand-charcoal dark:hover:text-white text-xl font-bold"
               >
@@ -579,7 +579,7 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Modal Form */}
             <form onSubmit={handleProductSubmit} className="space-y-4 text-xs text-brand-charcoal/80 dark:text-brand-cream/80">
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[10px] uppercase font-bold text-brand-charcoal/50 dark:text-brand-cream/50 mb-1.5">Product Name</label>
@@ -705,15 +705,15 @@ export const AdminDashboard: React.FC = () => {
                 <label className="block text-[10px] uppercase font-bold text-brand-charcoal/50 dark:text-brand-cream/50">
                   Product Images ({prodImages.length})
                 </label>
-                
+
                 {/* Images Preview Grid */}
                 {prodImages.length > 0 && (
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-2xl border border-brand-beige-dark/20 bg-brand-cream-light/30 dark:bg-brand-charcoal/30">
                     {prodImages.map((img, idx) => (
                       <div key={idx} className="relative aspect-[3/4] rounded-xl overflow-hidden border border-brand-beige-dark/30 group bg-white dark:bg-brand-charcoal">
-                        <img 
-                          src={img} 
-                          alt={`Product image ${idx + 1}`} 
+                        <img
+                          src={img}
+                          alt={`Product image ${idx + 1}`}
                           className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -743,10 +743,10 @@ export const AdminDashboard: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* File Upload Zone */}
                   <div className="relative">
-                    <label 
+                    <label
                       className={`h-36 flex flex-col items-center justify-center border-2 border-dashed rounded-2xl cursor-pointer p-4 transition text-center
-                        ${isUploading 
-                          ? 'border-brand-beige-dark/30 bg-brand-cream-light/10 cursor-not-allowed' 
+                        ${isUploading
+                          ? 'border-brand-beige-dark/30 bg-brand-cream-light/10 cursor-not-allowed'
                           : 'border-brand-beige-dark/50 hover:border-brand-blush-dark hover:bg-brand-cream-light/20 bg-brand-cream-light/30 dark:bg-brand-charcoal/30'}`}
                     >
                       <input

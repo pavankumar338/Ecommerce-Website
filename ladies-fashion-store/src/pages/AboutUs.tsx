@@ -13,7 +13,7 @@ export const AboutUs: React.FC = () => {
         <div>
           <h2 className="font-serif text-2xl font-bold text-brand-charcoal dark:text-white mb-6">Born from Passion, Woven with Patience</h2>
           <p className="text-xs sm:text-sm text-brand-charcoal/70 dark:text-brand-cream-light/75 leading-relaxed font-light mb-4">
-            Founded in 2020, VIORA started with a simple vision: to celebrate the timeless elegance of traditional Indian weaves while infusing them with contemporary Western cuts. We wanted to create clothes that feel like poetry, drape like a dream, and carry the weight of stories told by master artisans.
+            Founded in 2020, DRESIQ started with a simple vision: to celebrate the timeless elegance of traditional Indian weaves while infusing them with contemporary Western cuts. We wanted to create clothes that feel like poetry, drape like a dream, and carry the weight of stories told by master artisans.
           </p>
           <p className="text-xs sm:text-sm text-brand-charcoal/70 dark:text-brand-cream-light/75 leading-relaxed font-light">
             Every thread of silk, every dye of blush pink and lavender, and every bead of pearl is selected with absolute dedication to premium luxury. We do not believe in fast-paced trends. We believe in pieces that live through generations.
