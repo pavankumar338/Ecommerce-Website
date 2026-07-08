@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from '../components/ProductCard';
-import { FiFilter, FiSliders, FiArrowRight, FiArrowLeft, FiCheck, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiFilter, FiSliders, FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { supabase } from '../services/supabase';
 
@@ -72,44 +72,12 @@ export const Shop: React.FC = () => {
 
   // Design Gallery & Customization States
   const [activeImgIndex, setActiveImgIndex] = useState<number>(0);
-  const [galleryZoomStyle, setGalleryZoomStyle] = useState<React.CSSProperties>({});
   const [customInstructions, setCustomInstructions] = useState<string>('');
 
   // Reset active image index when dress type changes
   useEffect(() => {
     setActiveImgIndex(0);
   }, [dressType]);
-
-  // Gallery Navigation Functions
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveImgIndex((prev) => (prev + 1) % designImages.length);
-  };
-
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveImgIndex((prev) => (prev - 1 + designImages.length) % designImages.length);
-  };
-
-
-
-  // Magnifying Zoom Effect for Desktop Main Image
-  const handleGalleryMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - left) / width) * 100;
-    const y = ((e.clientY - top) / height) * 100;
-    setGalleryZoomStyle({
-      transformOrigin: `${x}% ${y}%`,
-      transform: 'scale(1.8)'
-    });
-  };
-
-  const handleGalleryMouseLeave = () => {
-    setGalleryZoomStyle({
-      transformOrigin: 'center',
-      transform: 'scale(1)'
-    });
-  };
 
   // Payment Form States
   const [paymentForm, setPaymentForm] = useState({
