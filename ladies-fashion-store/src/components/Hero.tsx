@@ -45,7 +45,7 @@ export const Hero: React.FC = () => {
             <button
               onClick={() => {
                 if (user) {
-                  navigate('/shop?view=customization');
+                  navigate('/shop');
                 } else {
                   navigate('/login');
                 }
@@ -53,18 +53,6 @@ export const Hero: React.FC = () => {
               className="w-full sm:w-auto bg-brand-gold hover:bg-white text-brand-charcoal font-sans text-xs sm:text-sm font-semibold tracking-widest uppercase px-8 py-4 rounded-md transition-all duration-300 shadow-lg shadow-brand-gold/10"
             >
               Start Customization
-            </button>
-            <button
-              onClick={() => {
-                if (user) {
-                  navigate('/shop');
-                } else {
-                  navigate('/login');
-                }
-              }}
-              className="w-full sm:w-auto border border-white/20 hover:border-white/60 text-white bg-white/5 hover:bg-white/10 transition-all duration-300 font-sans text-xs sm:text-sm font-semibold tracking-widest uppercase px-8 py-4 rounded-md"
-            >
-              Select Design
             </button>
           </motion.div>
         </div>

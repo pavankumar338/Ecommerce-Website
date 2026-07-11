@@ -79,13 +79,13 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           {user && (
             <div>
-              <h4 className="font-serif text-sm font-bold uppercase tracking-wider mb-6">Shop Collections</h4>
+              <h4 className="font-serif text-sm font-bold uppercase tracking-wider mb-6">Bespoke Tailoring</h4>
               <ul className="space-y-3 text-xs text-brand-charcoal/70 dark:text-brand-cream/70">
-                <li><Link to="/shop?category=Sarees" className="hover:text-brand-blush-dark transition">Elegant Sarees</Link></li>
-                <li><Link to="/shop?category=Kurtis" className="hover:text-brand-blush-dark transition">Linen & Cotton Kurtis</Link></li>
-                <li><Link to="/shop?category=Gowns" className="hover:text-brand-blush-dark transition">Party Gowns</Link></li>
-                <li><Link to="/shop?category=Wedding Collection" className="hover:text-brand-blush-dark transition">Bridal Lehenga & Gowns</Link></li>
-                <li><Link to="/shop?category=Western Wear" className="hover:text-brand-blush-dark transition">Modern Western Wear</Link></li>
+                <li><Link to="/shop" className="hover:text-brand-blush-dark transition">Customize Kurti</Link></li>
+                <li><Link to="/shop" className="hover:text-brand-blush-dark transition">Customize Anarkali</Link></li>
+                <li><Link to="/shop" className="hover:text-brand-blush-dark transition">Customize Lehenga</Link></li>
+                <li><Link to="/shop" className="hover:text-brand-blush-dark transition">Customize Dupatta</Link></li>
+                <li><Link to="/shop" className="hover:text-brand-blush-dark transition">Customize Kurtaset</Link></li>
               </ul>
             </div>
           )}
