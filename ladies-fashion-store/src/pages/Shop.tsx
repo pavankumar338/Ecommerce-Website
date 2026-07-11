@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from '../components/ProductCard';
 import { FiFilter, FiSliders, FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
@@ -47,8 +47,9 @@ const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export const Shop: React.FC = () => {
-  const { products, categories, user } = useShop();
+  const { products, categories, user, authLoading } = useShop();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const categoryParam = searchParams.get('category');
   const searchParam = searchParams.get('search');
@@ -212,6 +213,24 @@ export const Shop: React.FC = () => {
       setShopView('select-design');
     }
   }, [viewParam]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream-light dark:bg-black/90">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   // Handle Category Filter
   const filteredProducts = products.filter(p => {

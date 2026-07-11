@@ -1,11 +1,29 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from '../components/ProductCard';
 
 export const Wishlist: React.FC = () => {
-  const { wishlist, products } = useShop();
+  const { wishlist, products, user, authLoading } = useShop();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream-light dark:bg-black/90">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const wishlistedProducts = products.filter(p => wishlist.includes(p.id));
 

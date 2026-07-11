@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 export const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { products, addToCart, wishlist, toggleWishlist, addReview, addToRecentlyViewed } = useShop();
+  const { products, addToCart, wishlist, toggleWishlist, addReview, addToRecentlyViewed, user, authLoading } = useShop();
 
   const product = products.find(p => p.id === Number(id));
 
@@ -31,6 +31,24 @@ export const ProductDetails: React.FC = () => {
       addToRecentlyViewed(product.id);
     }
   }, [id, product]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream-light dark:bg-black/90">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   if (!product) {
     return (

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useShop } from '../context/ShopContext';
 
 const collections = [
   {
@@ -30,9 +31,14 @@ const collections = [
 
 export const FeaturedCollections: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useShop();
 
   const handleCollectionClick = (categoryName: string) => {
-    navigate(`/shop?category=${encodeURIComponent(categoryName)}`);
+    if (user) {
+      navigate(`/shop?category=${encodeURIComponent(categoryName)}`);
+    } else {
+      navigate('/login');
+    }
   };
 
   return (

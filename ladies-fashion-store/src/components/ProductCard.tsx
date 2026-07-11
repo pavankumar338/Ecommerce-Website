@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useShop, type Product } from '../context/ShopContext';
 import { FiHeart, FiShoppingBag, FiStar } from 'react-icons/fi';
 import { toast } from 'react-toastify';
@@ -9,12 +9,18 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { wishlist, toggleWishlist, addToCart } = useShop();
+  const { wishlist, toggleWishlist, addToCart, user } = useShop();
+  const navigate = useNavigate();
   const isWishlisted = wishlist.includes(product.id);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      toast.warning("Please sign in to manage your wishlist.");
+      navigate('/login');
+      return;
+    }
     toggleWishlist(product.id);
     if (!isWishlisted) {
       toast.success(`${product.name} added to wishlist! 💖`);
@@ -26,6 +32,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!user) {
+      toast.warning("Please sign in to add items to your cart.");
+      navigate('/login');
+      return;
+    }
     // Use first size and first color as default for quick-add
     const defaultSize = product.sizes[0] || 'S';
     const defaultColor = product.color[0] || 'Natural';

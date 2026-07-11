@@ -86,6 +86,7 @@ interface ShopContextType {
   searchResults: Product[];
   user: any | null;
   setUser: (user: any) => void;
+  authLoading: boolean;
   darkMode: boolean;
   toggleDarkMode: () => void;
   recentlyViewed: number[];
@@ -329,6 +330,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [user, setUser] = useState<any | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('theme');
     if (saved) {
@@ -582,6 +584,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         loadUserProfile(session.user.id, session.user.email || '');
+      } else {
+        setAuthLoading(false);
       }
     });
 
@@ -593,6 +597,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCart([]);
         setWishlist([]);
         setOrders([]);
+        setAuthLoading(false);
       }
     });
 
@@ -633,9 +638,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       // Fetch dynamic tables loaded with this user ID
-      loadData(uid);
+      await loadData(uid);
     } catch (err) {
       console.error("Error loading user profile:", err);
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -976,6 +983,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       searchResults,
       user,
       setUser,
+      authLoading,
       darkMode,
       toggleDarkMode,
       recentlyViewed,

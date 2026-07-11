@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useShop } from '../context/ShopContext';
 
 export const Hero: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useShop();
 
   return (
     <div className="relative h-[650px] w-full flex items-center justify-center overflow-hidden bg-[#0A0A0A] text-white">
@@ -41,13 +43,25 @@ export const Hero: React.FC = () => {
             className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
           >
             <button
-              onClick={() => navigate('/shop?view=customization')}
+              onClick={() => {
+                if (user) {
+                  navigate('/shop?view=customization');
+                } else {
+                  navigate('/login');
+                }
+              }}
               className="w-full sm:w-auto bg-brand-gold hover:bg-white text-brand-charcoal font-sans text-xs sm:text-sm font-semibold tracking-widest uppercase px-8 py-4 rounded-md transition-all duration-300 shadow-lg shadow-brand-gold/10"
             >
               Start Customization
             </button>
             <button
-              onClick={() => navigate('/shop')}
+              onClick={() => {
+                if (user) {
+                  navigate('/shop');
+                } else {
+                  navigate('/login');
+                }
+              }}
               className="w-full sm:w-auto border border-white/20 hover:border-white/60 text-white bg-white/5 hover:bg-white/10 transition-all duration-300 font-sans text-xs sm:text-sm font-semibold tracking-widest uppercase px-8 py-4 rounded-md"
             >
               Select Design

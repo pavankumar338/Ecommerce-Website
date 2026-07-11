@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { FiTrash2, FiPlus, FiMinus, FiShoppingBag, FiArrowRight } from 'react-icons/fi';
@@ -7,11 +7,30 @@ import { toast } from 'react-toastify';
 export const Cart: React.FC = () => {
   const { 
     cart, products, updateCartQuantity, removeFromCart, 
-    getCartTotal, getDiscountedTotal, activeCoupon, applyCoupon, removeCoupon 
+    getCartTotal, getDiscountedTotal, activeCoupon, applyCoupon, removeCoupon,
+    user, authLoading
   } = useShop();
 
   const navigate = useNavigate();
   const [couponCode, setCouponCode] = useState('');
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream-light dark:bg-black/90">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   const cartItemsData = cart.map(item => {
     const product = products.find(p => p.id === item.productId)!;

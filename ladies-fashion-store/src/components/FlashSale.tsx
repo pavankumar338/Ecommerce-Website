@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useShop } from '../context/ShopContext';
 
 export const FlashSale: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useShop();
   // Target: 3 days from now
   const [timeLeft, setTimeLeft] = useState({
     days: 3,
@@ -95,7 +97,13 @@ export const FlashSale: React.FC = () => {
         {/* CTA Shop Button */}
         <div>
           <button
-            onClick={() => navigate('/shop')}
+            onClick={() => {
+              if (user) {
+                navigate('/shop');
+              } else {
+                navigate('/login');
+              }
+            }}
             className="bg-brand-charcoal dark:bg-brand-cream text-white dark:text-brand-charcoal text-xs font-bold uppercase tracking-widest px-8 py-4 rounded-md hover:bg-brand-blush-dark dark:hover:bg-brand-blush hover:text-white transition duration-300 shadow-sm"
           >
             Claim 15% Off

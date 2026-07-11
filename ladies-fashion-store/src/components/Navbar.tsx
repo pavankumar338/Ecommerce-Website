@@ -63,7 +63,9 @@ export const Navbar: React.FC = () => {
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex space-x-8">
             <Link to="/" className="text-sm font-medium tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark dark:hover:text-brand-blush transition uppercase">Home</Link>
-            <Link to="/shop" className="text-sm font-medium tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark dark:hover:text-brand-blush transition uppercase">Shop</Link>
+            {user && (
+              <Link to="/shop" className="text-sm font-medium tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark dark:hover:text-brand-blush transition uppercase">Shop</Link>
+            )}
 
             {/* Elegant Categories Dropdown */}
 
@@ -128,24 +130,28 @@ export const Navbar: React.FC = () => {
             </button>
 
             {/* Wishlist Link */}
-            <Link to="/wishlist" className="relative text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark transition">
-              <FiHeart className="h-5 w-5" />
-              {wishlist.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-brand-blush-dark text-[9px] font-bold text-white w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                  {wishlist.length}
-                </span>
-              )}
-            </Link>
+            {user && (
+              <Link to="/wishlist" className="relative text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark transition">
+                <FiHeart className="h-5 w-5" />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-brand-blush-dark text-[9px] font-bold text-white w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
+            )}
 
             {/* Cart Link */}
-            <Link to="/cart" className="relative text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark transition">
-              <FiShoppingBag className="h-5 w-5" />
-              {totalCartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-brand-blush-dark text-[9px] font-bold text-white w-4 h-4 rounded-full flex items-center justify-center">
-                  {totalCartCount}
-                </span>
-              )}
-            </Link>
+            {user && (
+              <Link to="/cart" className="relative text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark transition">
+                <FiShoppingBag className="h-5 w-5" />
+                {totalCartCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-brand-blush-dark text-[9px] font-bold text-white w-4 h-4 rounded-full flex items-center justify-center">
+                    {totalCartCount}
+                  </span>
+                )}
+              </Link>
+            )}
 
             {/* Profile Dropdown */}
             <div className="relative">
@@ -230,7 +236,9 @@ export const Navbar: React.FC = () => {
               {/* Navigation Links */}
               <nav className="flex flex-col space-y-4">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark py-2 uppercase border-b border-brand-beige-dark/10">Home</Link>
-                <Link to="/shop" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark py-2 uppercase border-b border-brand-beige-dark/10">Shop All</Link>
+                {user && (
+                  <Link to="/shop" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark py-2 uppercase border-b border-brand-beige-dark/10">Shop All</Link>
+                )}
 
                 <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark py-2 uppercase border-b border-brand-beige-dark/10">About Us</Link>
                 <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="text-sm font-semibold tracking-wider text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark py-2 uppercase border-b border-brand-beige-dark/10">Contact</Link>

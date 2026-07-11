@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { toast } from 'react-toastify';
@@ -18,7 +18,7 @@ const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export const Checkout: React.FC = () => {
-  const { cart, getDiscountedTotal, placeOrder } = useShop();
+  const { cart, getDiscountedTotal, placeOrder, user, authLoading } = useShop();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -32,6 +32,24 @@ export const Checkout: React.FC = () => {
   });
   const [paymentMethod, setPaymentMethod] = useState('COD');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/login');
+    }
+  }, [user, authLoading, navigate]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-cream-light dark:bg-black/90">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-gold"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   if (cart.length === 0) {
     return (

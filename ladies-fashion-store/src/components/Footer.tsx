@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FiInstagram, FiFacebook, FiTwitter, FiPhone, FiMail, FiMapPin } from 'react-icons/fi';
+import { useShop } from '../context/ShopContext';
 
 export const Footer: React.FC = () => {
+  const { user } = useShop();
   const [email, setEmail] = useState('');
 
   const handleSubscribe = (e: React.FormEvent) => {
@@ -75,16 +77,18 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h4 className="font-serif text-sm font-bold uppercase tracking-wider mb-6">Shop Collections</h4>
-            <ul className="space-y-3 text-xs text-brand-charcoal/70 dark:text-brand-cream/70">
-              <li><Link to="/shop?category=Sarees" className="hover:text-brand-blush-dark transition">Elegant Sarees</Link></li>
-              <li><Link to="/shop?category=Kurtis" className="hover:text-brand-blush-dark transition">Linen & Cotton Kurtis</Link></li>
-              <li><Link to="/shop?category=Gowns" className="hover:text-brand-blush-dark transition">Party Gowns</Link></li>
-              <li><Link to="/shop?category=Wedding Collection" className="hover:text-brand-blush-dark transition">Bridal Lehenga & Gowns</Link></li>
-              <li><Link to="/shop?category=Western Wear" className="hover:text-brand-blush-dark transition">Modern Western Wear</Link></li>
-            </ul>
-          </div>
+          {user && (
+            <div>
+              <h4 className="font-serif text-sm font-bold uppercase tracking-wider mb-6">Shop Collections</h4>
+              <ul className="space-y-3 text-xs text-brand-charcoal/70 dark:text-brand-cream/70">
+                <li><Link to="/shop?category=Sarees" className="hover:text-brand-blush-dark transition">Elegant Sarees</Link></li>
+                <li><Link to="/shop?category=Kurtis" className="hover:text-brand-blush-dark transition">Linen & Cotton Kurtis</Link></li>
+                <li><Link to="/shop?category=Gowns" className="hover:text-brand-blush-dark transition">Party Gowns</Link></li>
+                <li><Link to="/shop?category=Wedding Collection" className="hover:text-brand-blush-dark transition">Bridal Lehenga & Gowns</Link></li>
+                <li><Link to="/shop?category=Western Wear" className="hover:text-brand-blush-dark transition">Modern Western Wear</Link></li>
+              </ul>
+            </div>
+          )}
 
           {/* Customer Service */}
           <div>
