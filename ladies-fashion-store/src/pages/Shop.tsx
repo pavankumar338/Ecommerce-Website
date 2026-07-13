@@ -5,8 +5,8 @@ import { FiArrowRight, FiArrowLeft, FiCheck } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { supabase } from '../services/supabase';
 
-// Design gallery images (Kurti showcase for design details)
-const designImages = [
+// Fallback configuration constants
+const fallbackDesignImages = [
   '/Kurti/kurti1.png',
   '/Kurti/kurti2.png',
   '/Kurti/kurti3.png',
@@ -19,8 +19,7 @@ const designImages = [
   '/Kurti/kurti10.png'
 ];
 
-// Fabric option images (used to display Silk and Cotton print textures)
-const fabricPrints = [
+const fallbackFabricPrints = [
   { name: 'Traditional Print', image: '/cotton/cotton1.png' },
   { name: 'Floral Bloom', image: '/cotton/cotton2.png' },
   { name: 'Ethnic Weave', image: '/cotton/cotton3.png' },
@@ -31,19 +30,13 @@ const fabricPrints = [
   { name: 'Festive Zari', image: '/cotton/cotton8.png' }
 ];
 
-const loadRazorpayScript = (): Promise<boolean> => {
-  return new Promise((resolve) => {
-    if ((window as any).Razorpay) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
+const fallbackDressTypes = [
+  { name: 'Kurti', price: 120, image: '/kurtis.png', desc: 'Contemporary tunic style' },
+  { name: 'Office-Wear Kurti', price: 180, image: 'OfficeWearKurti.png', desc: 'Royal flared silhouette' },
+  { name: 'Short Kurti', price: 380, image: 'shortkurtis.png', desc: 'Bespoke bridal flared skirt set' },
+  { name: 'Dupatta', price: 240, image: '/dupatta.png', desc: 'Classic 6-yard elegant drape' },
+  { name: 'Kurtaset', price: 200, image: '/kurtaset.png', desc: 'Modern formal ethnic fusion' }
+];
 
 export const Shop: React.FC = () => {
   const { user, authLoading } = useShop();
@@ -57,14 +50,157 @@ export const Shop: React.FC = () => {
   const [lining, setLining] = useState('With Lining');
   const [pattern, setPattern] = useState('Solid Plain');
 
+  // Dynamic configuration lists from Supabase
+  const [dressTypes, setDressTypes] = useState<any[]>(fallbackDressTypes);
+  const [fabricPrints, setFabricPrints] = useState<any[]>(fallbackFabricPrints);
+  const [designImages, setDesignImages] = useState<string[]>(fallbackDesignImages);
+
+  useEffect(() => {
+    const fetchCustomizationOptions = async () => {
+      try {
+        const { data: dt, error: dtErr } = await supabase.from('custom_dress_types').select('*').order('id', { ascending: true });
+        if (!dtErr && dt && dt.length > 0) {
+          const mapped = dt.map(item => ({
+            name: item.name,
+            price: Number(item.price),
+            image: item.image_url,
+            desc: item.description || ''
+          }));
+          setDressTypes(mapped);
+          setDressType(mapped[0].name);
+        }
+
+        const { data: fb, error: fbErr } = await supabase.from('custom_fabrics').select('*').order('id', { ascending: true });
+        if (!fbErr && fb && fb.length > 0) {
+          const mapped = fb.map(item => ({
+            name: item.name,
+            price: Number(item.price),
+            image: item.image_url
+          }));
+          setFabricPrints(mapped);
+          setFabricColor(mapped[0].name);
+        }
+
+        const { data: ds, error: dsErr } = await supabase.from('custom_designs').select('*').order('id', { ascending: true });
+        if (!dsErr && ds && ds.length > 0) {
+          setDesignImages(ds.map(item => item.image_url));
+        }
+      } catch (err) {
+        console.error("Failed fetching dynamic customization config:", err);
+      }
+    };
+    fetchCustomizationOptions();
+  }, []);
+
   // Design Gallery & Customization States
   const [activeImgIndex, setActiveImgIndex] = useState<number>(0);
   const [customInstructions, setCustomInstructions] = useState<string>('');
+  const [customColor, setCustomColor] = useState<string>('');
+  const [tempHfToken, setTempHfToken] = useState<string>('');
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string>('');
+  const [apiError, setApiError] = useState<string>('');
+  const [isGeneratingLive, setIsGeneratingLive] = useState<boolean>(false);
+
+  // 3D View Generation States
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   // Reset active image index when dress type changes
   useEffect(() => {
     setActiveImgIndex(0);
   }, [dressType]);
+
+  const buildPrompt = () => {
+    // Map abstract fabric print names to concrete color/pattern descriptions to guide the AI model
+    const colorMap: Record<string, string> = {
+      'Traditional Print': 'crimson red and beige traditional handblock print',
+      'Floral Bloom': 'pastel pink and cream floral bloom print',
+      'Ethnic Weave': 'multicolored traditional ethnic weave pattern',
+      'Indigo Dream': 'deep indigo blue block print',
+      'Royal Gold Motif': 'royal blue with rich golden zari motifs',
+      'Summer Breeze': 'light mint green and pastel yellow floral print',
+      'Vintage Ornament': 'crimson red with gold vintage ornamental print',
+      'Festive Zari': 'maroon with elaborate gold borders and festive zari work'
+    };
+
+    const exactColorDescription = customColor.trim()
+      ? `exact color: ${customColor}`
+      : `color and print style of ${colorMap[fabricColor] || fabricColor}`;
+
+    const stitchDetails = customInstructions.trim() ? `, tailoring details: ${customInstructions}` : '';
+
+    return `A premium fashion catalog photography showing a single high-fashion woman model posing in a complete full-length Indian ${dressType}. The dress is made of ${fabric} fabric with the ${exactColorDescription}, featuring a beautiful ${pattern} pattern design${stitchDetails}. The photo shows a side-by-side dual view displaying both the full front view and the full back view of the model wearing the exact same dress, set against a clean plain white studio background. Photorealistic, 8k resolution, extremely detailed fabric texture, consistent colors.`;
+  };
+
+  const generateFluxImage = async () => {
+    const hfToken = import.meta.env.VITE_HF_TOKEN || tempHfToken;
+    if (!hfToken) {
+      setApiError("Please configure your VITE_HF_TOKEN in the .env file or enter it below to generate.");
+      return;
+    }
+
+    setIsGeneratingLive(true);
+    setApiError('');
+    setGenerationProgress(5);
+
+    // Simulate generation progress
+    const progressInterval = setInterval(() => {
+      setGenerationProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 400);
+
+    try {
+      const promptText = buildPrompt();
+
+      const response = await fetch(
+        "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${hfToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            inputs: promptText
+          }),
+        }
+      );
+
+      clearInterval(progressInterval);
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const blob = await response.blob();
+      const imageUrl = URL.createObjectURL(blob);
+
+      setGenerationProgress(100);
+      setGeneratedImageUrl(imageUrl);
+      toast.success("AI Dress Preview generated successfully!");
+    } catch (error: any) {
+      clearInterval(progressInterval);
+      console.error("Hugging Face API Error:", error);
+      setApiError(error.message || "Failed to contact Hugging Face API. Please check your network and token.");
+      toast.error("Failed to generate AI preview.");
+    } finally {
+      setIsGeneratingLive(false);
+    }
+  };
+
+  // Automatically trigger AI preview when Step 4 is active
+  useEffect(() => {
+    if (customStep === 4) {
+      const hfToken = import.meta.env.VITE_HF_TOKEN || tempHfToken;
+      if (hfToken && !generatedImageUrl) {
+        generateFluxImage();
+      }
+    }
+  }, [customStep, tempHfToken]);
 
   // Payment Form States
   const [paymentForm, setPaymentForm] = useState({
@@ -73,15 +209,6 @@ export const Shop: React.FC = () => {
     phone: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Config data
-  const dressTypes = [
-    { name: 'Kurti', price: 120, image: '/kurtis.png', desc: 'Contemporary tunic style' },
-    { name: 'Anarkali', price: 180, image: '/anarkalis.png', desc: 'Royal flared silhouette' },
-    { name: 'Lehenga', price: 380, image: '/lehenga.png', desc: 'Bespoke bridal flared skirt set' },
-    { name: 'Dupatta', price: 240, image: '/dupatta.png', desc: 'Classic 6-yard elegant drape' },
-    { name: 'Kurtaset', price: 200, image: '/kurtaset.png', desc: 'Modern formal ethnic fusion' }
-  ];
 
   const fabrics = [
     { name: 'Cotton', price: 0, desc: 'Breathable, daily luxury' },
@@ -105,81 +232,46 @@ export const Shop: React.FC = () => {
   const handleRazorpayPayment = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    toast.info("Simulating secure tailoring advance payment... 💳");
 
-    const isLoaded = await loadRazorpayScript();
-    if (!isLoaded) {
-      toast.error("Failed to load Razorpay SDK. Please check your internet connection.");
-      setIsSubmitting(false);
-      return;
-    }
+    setTimeout(async () => {
+      try {
+        const formattedPattern = `Design #${activeImgIndex + 1}`;
+        const mockPaymentId = `pay_${Math.floor(100000 + Math.random() * 900000)}`;
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dresiqPaymentKey', // Dummy/test key format fallback
-      amount: halfPrice * 100, // Amount in paise
-      currency: 'INR',
-      name: 'Dresiq',
-      description: `Bespoke Custom Tailoring Advance - ${dressType}`,
-      image: '/favicon.svg',
-      handler: async function (response: any) {
-        try {
-          const formattedPattern = `Design #${activeImgIndex + 1}`;
+        const customOrder = {
+          user_id: user?.id || null,
+          customer_name: paymentForm.cardName,
+          customer_email: paymentForm.email,
+          customer_phone: paymentForm.phone,
+          dress_type: dressType,
+          fabric: fabric,
+          fabric_color: customColor ? `${customColor} | ${fabricColor} (${lining})` : `${fabricColor} (${lining})`,
+          pattern: customInstructions ? `${formattedPattern} | Custom Requests: ${customInstructions}` : formattedPattern,
+          total_price: totalPrice,
+          advance_paid: halfPrice,
+          due_amount: halfPrice,
+          razorpay_payment_id: mockPaymentId,
+          payment_status: 'Paid (50% Advance)',
+          status: 'Stitching'
+        };
 
-          const customOrder = {
-            user_id: user?.id || null,
-            customer_name: paymentForm.cardName,
-            customer_email: paymentForm.email,
-            customer_phone: paymentForm.phone,
-            dress_type: dressType,
-            fabric: fabric,
-            fabric_color: `${fabricColor} (${lining})`,
-            pattern: formattedPattern,
-            total_price: totalPrice,
-            advance_paid: halfPrice,
-            due_amount: halfPrice,
-            razorpay_payment_id: response.razorpay_payment_id,
-            payment_status: 'Paid (50% Advance)',
-            status: 'Stitching'
-          };
+        const { error } = await supabase.from('custom_orders').insert(customOrder);
 
-          const { error } = await supabase.from('custom_orders').insert(customOrder);
-
-          if (error) {
-            console.error("Database insert error:", error);
-            toast.error("Payment successful, but failed to save order details. Please contact support.");
-          } else {
-            toast.success(`Custom order booked successfully! ID: ${response.razorpay_payment_id} ✂️`);
-            setCustomStep(5);
-          }
-        } catch (err) {
-          console.error("Order insertion error:", err);
-          toast.error("An unexpected error occurred while saving your order.");
-        } finally {
-          setIsSubmitting(false);
+        if (error) {
+          console.error("Database insert error:", error);
+          toast.error("Mock payment failed to save order details. Please contact support.");
+        } else {
+          toast.success("Advance payment successful! Stitching has begun. ✨");
+          setCustomStep(6);
         }
-      },
-      prefill: {
-        name: paymentForm.cardName,
-        email: paymentForm.email || 'customer@example.com',
-        contact: paymentForm.phone || '9999999999'
-      },
-      theme: {
-        color: '#C5A880'
-      },
-      modal: {
-        ondismiss: function () {
-          setIsSubmitting(false);
-          toast.warning("Payment cancelled by user.");
-        }
+      } catch (err) {
+        console.error("Order insertion error:", err);
+        toast.error("An unexpected error occurred while saving your order.");
+      } finally {
+        setIsSubmitting(false);
       }
-    };
-
-    try {
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
-    } catch (err) {
-      setIsSubmitting(false);
-      toast.error("An error occurred while opening the payment gateway.");
-    }
+    }, 1500);
   };
 
   if (authLoading) {
@@ -213,8 +305,8 @@ export const Shop: React.FC = () => {
             { step: 1, label: "Dress Type" },
             { step: 2, label: "Fabric" },
             { step: 3, label: "Designs" },
-            { step: 4, label: "Half Payment" },
-            { step: 5, label: "Full Dress" }
+            { step: 4, label: "Full Dress" },
+            { step: 5, label: "Half Payment" }
           ].map((s) => (
             <React.Fragment key={s.step}>
               <div className="flex flex-col items-center z-10">
@@ -321,11 +413,10 @@ export const Shop: React.FC = () => {
                             setFabricColor(item.name);
                             setLining('With Lining');
                           }}
-                          className={`flex-1 text-[10px] py-1.5 px-1 rounded-md font-bold tracking-wide transition-all duration-200 cursor-pointer ${
-                            fabricColor === item.name && lining === 'With Lining'
-                              ? 'bg-brand-gold text-brand-charcoal shadow-sm'
-                              : 'bg-brand-cream-dark/15 dark:bg-black/35 text-brand-charcoal/50 dark:text-brand-cream/50 hover:bg-brand-cream-dark/25'
-                          }`}
+                          className={`flex-1 text-[10px] py-1.5 px-1 rounded-md font-bold tracking-wide transition-all duration-200 cursor-pointer ${fabricColor === item.name && lining === 'With Lining'
+                            ? 'bg-brand-gold text-brand-charcoal shadow-sm'
+                            : 'bg-brand-cream-dark/15 dark:bg-black/35 text-brand-charcoal/50 dark:text-brand-cream/50 hover:bg-brand-cream-dark/25'
+                            }`}
                         >
                           With Lining
                         </button>
@@ -336,11 +427,10 @@ export const Shop: React.FC = () => {
                             setFabricColor(item.name);
                             setLining('Without Lining');
                           }}
-                          className={`flex-1 text-[10px] py-1.5 px-1 rounded-md font-bold tracking-wide transition-all duration-200 cursor-pointer ${
-                            fabricColor === item.name && lining === 'Without Lining'
-                              ? 'bg-brand-gold text-brand-charcoal shadow-sm'
-                              : 'bg-brand-cream-dark/15 dark:bg-black/35 text-brand-charcoal/50 dark:text-brand-cream/50 hover:bg-brand-cream-dark/25'
-                          }`}
+                          className={`flex-1 text-[10px] py-1.5 px-1 rounded-md font-bold tracking-wide transition-all duration-200 cursor-pointer ${fabricColor === item.name && lining === 'Without Lining'
+                            ? 'bg-brand-gold text-brand-charcoal shadow-sm'
+                            : 'bg-brand-cream-dark/15 dark:bg-black/35 text-brand-charcoal/50 dark:text-brand-cream/50 hover:bg-brand-cream-dark/25'
+                            }`}
                         >
                           Without
                         </button>
@@ -364,11 +454,10 @@ export const Shop: React.FC = () => {
                   <div
                     key={idx}
                     onClick={() => setActiveImgIndex(idx)}
-                    className={`group overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 bg-white dark:bg-brand-charcoal/20 flex flex-col justify-between h-[180px] sm:h-[240px] ${
-                      activeImgIndex === idx
-                        ? 'border-brand-gold bg-brand-gold/5 dark:bg-brand-gold/10 shadow-md'
-                        : 'border-brand-beige-dark/20 hover:border-brand-beige-dark/50'
-                    }`}
+                    className={`group overflow-hidden rounded-2xl border-2 cursor-pointer transition-all duration-300 bg-white dark:bg-brand-charcoal/20 flex flex-col justify-between h-[180px] sm:h-[240px] ${activeImgIndex === idx
+                      ? 'border-brand-gold bg-brand-gold/5 dark:bg-brand-gold/10 shadow-md'
+                      : 'border-brand-beige-dark/20 hover:border-brand-beige-dark/50'
+                      }`}
                   >
                     {/* Image Preview with Zoom on hover */}
                     <div className="relative flex-1 overflow-hidden">
@@ -410,10 +499,187 @@ export const Shop: React.FC = () => {
             </div>
           )}
 
-          {/* --- STEP 4: REVIEW & HALF PAYMENT --- */}
+          {/* --- STEP 4: BESPOKE AI DESIGNER STUDIO --- */}
           {customStep === 4 && (
             <div>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">4. Review & Half Payment</h3>
+              <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">4. Bespoke AI Designer Studio</h3>
+              <p className="text-xs text-brand-charcoal/50 dark:text-brand-cream/50 mb-8">Generate a custom 2D photo catalog showing front and back views of your tailor specifications.</p>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Configuration Panel (Left) */}
+                <div className="lg:col-span-1 flex flex-col gap-6">
+                  <div className="bg-brand-cream-light dark:bg-brand-charcoal/40 p-5 rounded-2xl border border-brand-beige-dark/15 space-y-5">
+                    <h4 className="font-serif text-sm font-bold uppercase tracking-wider border-b border-brand-beige-dark/15 pb-2">Custom Requirements</h4>
+
+                    {/* Custom Color Input */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] uppercase font-bold text-brand-charcoal/60 dark:text-brand-cream/60">Dress Color / Theme</label>
+                      <input
+                        type="text"
+                        value={customColor}
+                        onChange={(e) => {
+                          setCustomColor(e.target.value);
+                          setApiError('');
+                        }}
+                        placeholder="e.g. Lavender with golden sequin highlights"
+                        className="w-full bg-white dark:bg-black/40 text-xs px-3.5 py-2.5 rounded-lg border border-brand-beige-dark/40 focus:outline-none focus:border-brand-gold dark:text-brand-cream"
+                      />
+                    </div>
+
+                    {/* Custom Stitching Instructions */}
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] uppercase font-bold text-brand-charcoal/60 dark:text-brand-cream/60">Stitching Requests & Notes</label>
+                      <textarea
+                        rows={3}
+                        value={customInstructions}
+                        onChange={(e) => {
+                          setCustomInstructions(e.target.value);
+                          setApiError('');
+                        }}
+                        placeholder="e.g. Sleeveless, sweetheart neckline, ankle-length, slits on both sides."
+                        className="w-full bg-white dark:bg-black/40 text-xs px-3.5 py-2.5 rounded-lg border border-brand-beige-dark/40 focus:outline-none focus:border-brand-gold dark:text-brand-cream resize-none"
+                      />
+                    </div>
+
+                    {/* Developer/Testing Credentials (if no Env Key) */}
+                    {!import.meta.env.VITE_HF_TOKEN && (
+                      <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-500/25 p-4 rounded-xl flex flex-col gap-3">
+                        <div className="flex gap-2 text-amber-700 dark:text-amber-300">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                          </svg>
+                          <div>
+                            <span className="font-bold text-xs block">VITE_HF_TOKEN Missing</span>
+                            <span className="text-[10px] font-medium leading-relaxed block mt-0.5">
+                              Add it to `.env` or input it below for instant client-side rendering.
+                            </span>
+                          </div>
+                        </div>
+                        <input
+                          type="password"
+                          value={tempHfToken}
+                          onChange={(e) => {
+                            setTempHfToken(e.target.value);
+                            setApiError('');
+                          }}
+                          placeholder="Paste Hugging Face Token here..."
+                          className="w-full bg-white dark:bg-black/50 text-[10px] px-3 py-2 rounded-lg border border-amber-500/30 focus:outline-none focus:border-brand-gold dark:text-brand-cream"
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      onClick={generateFluxImage}
+                      disabled={isGeneratingLive}
+                      className="w-full bg-brand-charcoal text-white dark:bg-brand-cream dark:text-brand-charcoal text-[10px] font-bold uppercase tracking-wider py-3 rounded-lg hover:bg-brand-blush-dark transition cursor-pointer disabled:opacity-50"
+                    >
+                      {isGeneratingLive ? "Rendering Details..." : "Generate Custom AI Preview"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* AI Showcase Canvas (Right, 65%) */}
+                <div className="lg:col-span-2 flex flex-col">
+                  {isGeneratingLive ? (
+                    <div className="bg-brand-charcoal dark:bg-black/95 rounded-2xl h-[460px] border border-brand-beige-dark/20 flex flex-col items-center justify-center p-8 text-center shadow-2xl">
+                      <div className="relative w-20 h-20 mb-8">
+                        <div className="absolute inset-0 rounded-full border-4 border-brand-gold/10 animate-pulse"></div>
+                        <div className="absolute inset-0 rounded-full border-t-4 border-brand-gold animate-spin"></div>
+                      </div>
+                      <span className="text-[10px] uppercase font-bold tracking-widest text-brand-gold">Rendering Dress Preview</span>
+                      <div className="w-64 bg-brand-cream-dark/20 h-1 rounded-full overflow-hidden mt-4 mb-2">
+                        <div
+                          className="bg-brand-gold h-full transition-all duration-300 ease-out"
+                          style={{ width: `${generationProgress}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-[10px] font-mono text-brand-cream/60">
+                        {generationProgress}%
+                      </span>
+                      <p className="text-xs font-serif italic text-white/40 mt-4 h-4 transition-all duration-300">
+                        {generationProgress < 20 && "Structuring fabric silhouette..."}
+                        {generationProgress >= 20 && generationProgress < 50 && `Dyeing fabric: ${customColor || fabricColor}...`}
+                        {generationProgress >= 50 && generationProgress < 75 && `Stitching tailored pattern...`}
+                        {generationProgress >= 75 && generationProgress < 95 && "Synthesizing front & back catalog photography..."}
+                        {generationProgress >= 95 && "Polishing showcase canvas..."}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="bg-brand-charcoal dark:bg-black/95 rounded-2xl relative overflow-hidden h-[460px] border border-brand-beige-dark/20 flex flex-col justify-between p-4 shadow-2xl">
+                      {apiError ? (
+                        <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+                          <p className="text-red-400 text-xs font-medium max-w-sm mb-4">{apiError}</p>
+                          <button onClick={generateFluxImage} className="bg-white/10 text-white text-[10px] uppercase tracking-wider font-bold px-5 py-2.5 rounded-lg border border-white/10 hover:bg-white/20 transition">
+                            Try Again
+                          </button>
+                        </div>
+                      ) : generatedImageUrl ? (
+                        <>
+                          {/* Image Container */}
+                          <div className="relative flex-1 flex items-center justify-center p-2 overflow-hidden">
+                            <div className="w-full h-full max-h-[380px] rounded-xl overflow-hidden shadow-2xl border border-white/10 relative transition-transform duration-500 hover:scale-[1.02] bg-white">
+                              <img
+                                src={generatedImageUrl}
+                                alt="Bespoke custom dress generated by AI"
+                                className="w-full h-full object-contain"
+                                onLoad={() => {
+                                  setIsGeneratingLive(false);
+                                  setGenerationProgress(100);
+                                  if ((window as any)._progressInterval) {
+                                    clearInterval((window as any)._progressInterval);
+                                  }
+                                }}
+                                onError={() => {
+                                  setIsGeneratingLive(false);
+                                  if ((window as any)._progressInterval) {
+                                    clearInterval((window as any)._progressInterval);
+                                  }
+                                  setApiError("Failed to render the AI image. Please try again.");
+                                }}
+                              />
+                              <div className="absolute bottom-3 left-3 bg-brand-charcoal/80 backdrop-blur-md text-brand-gold text-[8px] font-bold uppercase tracking-wider px-2.5 py-1.5 rounded-lg border border-white/10 flex items-center gap-1.5 shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                                Custom Tailored Preview (Front & Back)
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Footer Actions */}
+                          <div className="relative z-10 flex justify-between items-center text-white/50 text-[10px] tracking-wider font-bold">
+                            <span className="uppercase text-brand-gold/70">AURA AI CANVAS v2.0</span>
+                            <div className="flex gap-2">
+                              <a
+                                href={generatedImageUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="bg-brand-charcoal/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/10 hover:text-white transition flex items-center gap-1"
+                              >
+                                View Fullscreen
+                              </a>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center text-center">
+                          <p className="text-white/40 text-xs font-serif italic mb-4">No preview generated. Fill in requirements and click generate.</p>
+                          <button onClick={generateFluxImage} className="bg-brand-gold hover:bg-brand-cream hover:text-brand-charcoal text-brand-charcoal text-[10px] uppercase font-bold py-2.5 px-6 rounded-lg transition shadow-md">
+                            Generate AI Preview
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* --- STEP 5: REVIEW & HALF PAYMENT --- */}
+          {customStep === 5 && (
+            <div>
+              <h3 className="font-serif text-xl sm:text-2xl font-bold mb-2">5. Review & Half Payment</h3>
               <p className="text-xs text-brand-charcoal/50 dark:text-brand-cream/50 mb-8">Confirm your customized dress configuration and pay 50% advance to start tailoring.</p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -425,8 +691,29 @@ export const Shop: React.FC = () => {
                       <li className="flex justify-between"><span className="text-brand-charcoal/50 dark:text-brand-cream/50">Dress Type:</span> <span className="font-semibold">{dressType}</span></li>
                       <li className="flex justify-between"><span className="text-brand-charcoal/50 dark:text-brand-cream/50">Fabric Choice:</span> <span className="font-semibold">{fabric} ({fabricColor} - {lining})</span></li>
                       <li className="flex justify-between"><span className="text-brand-charcoal/50 dark:text-brand-cream/50">Stitching Design:</span> <span className="font-semibold">Design #{activeImgIndex + 1}</span></li>
+                      {customColor.trim() && (
+                        <li className="flex justify-between"><span className="text-brand-charcoal/50 dark:text-brand-cream/50">Custom Color:</span> <span className="font-semibold text-brand-blush-dark">{customColor}</span></li>
+                      )}
+                      {customInstructions.trim() && (
+                        <li className="flex justify-between">
+                          <span className="text-brand-charcoal/50 dark:text-brand-cream/50">Stitching Requests:</span>
+                          <span className="font-semibold text-right max-w-[180px] break-words">{customInstructions}</span>
+                        </li>
+                      )}
                     </ul>
                   </div>
+
+                  {generatedImageUrl && (
+                    <div className="mt-4 pt-4 border-t border-brand-beige-dark/15 flex items-center gap-3">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden border border-brand-beige-dark/30 shadow-xs flex-shrink-0 bg-white">
+                        <img src={generatedImageUrl} alt="AI Custom preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-xs block text-brand-charcoal dark:text-white">AI Tailored Design Preview</span>
+                        <span className="text-[10px] text-brand-charcoal/50 dark:text-brand-cream/50 block">Front & Back Visualized</span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="border-t border-brand-beige-dark/15 pt-4 mt-6">
                     <div className="flex justify-between text-xs mb-1">
@@ -500,8 +787,8 @@ export const Shop: React.FC = () => {
             </div>
           )}
 
-          {/* --- STEP 5: CUSTOM DRESS CONFIRMATION --- */}
-          {customStep === 5 && (
+          {/* --- STEP 6: CUSTOM DRESS CONFIRMATION --- */}
+          {customStep === 6 && (
             <div className="max-w-xl mx-auto text-center py-8">
               <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
                 <FiCheck className="h-8 w-8" />
@@ -545,6 +832,9 @@ export const Shop: React.FC = () => {
                     setPattern('Solid Plain');
                     setActiveImgIndex(0);
                     setCustomInstructions('');
+                    setCustomColor('');
+                    setGeneratedImageUrl('');
+                    setApiError('');
                   }}
                   className="border border-brand-beige-dark/30 hover:border-brand-beige-dark text-xs font-semibold px-8 py-3.5 rounded-lg uppercase tracking-wider bg-transparent transition duration-300 text-brand-charcoal dark:text-white cursor-pointer"
                 >
@@ -564,7 +854,7 @@ export const Shop: React.FC = () => {
         </div>
 
         {/* Wizard Navigation Footer */}
-        {customStep < 4 && (
+        {customStep < 5 && (
           <div className="flex justify-between items-center border-t border-brand-beige-dark/15 pt-6 mt-8">
             <button
               disabled={customStep === 1}
@@ -578,6 +868,16 @@ export const Shop: React.FC = () => {
               className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-brand-charcoal text-white dark:bg-brand-cream dark:text-brand-charcoal px-6 py-3 rounded-lg hover:bg-brand-blush-dark transition"
             >
               Next Step <FiArrowRight />
+            </button>
+          </div>
+        )}
+        {customStep === 5 && (
+          <div className="flex justify-start items-center border-t border-brand-beige-dark/15 pt-6 mt-8">
+            <button
+              onClick={() => setCustomStep(4)}
+              className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider hover:text-brand-blush-dark transition"
+            >
+              <FiArrowLeft /> Previous
             </button>
           </div>
         )}

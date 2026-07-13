@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from '../components/ProductCard';
-import { FiHeart, FiShoppingBag, FiStar, FiChevronLeft, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiStar, FiChevronLeft } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 
 export const ProductDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { products, addToCart, wishlist, toggleWishlist, addReview, addToRecentlyViewed, user, authLoading } = useShop();
+  const { products, addReview, addToRecentlyViewed, user, authLoading } = useShop();
 
   const product = products.find(p => p.id === Number(id));
 
@@ -16,7 +16,6 @@ export const ProductDetails: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [quantity, setQuantity] = useState<number>(1);
   const [reviewName, setReviewName] = useState<string>('');
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewComment, setReviewComment] = useState<string>('');
@@ -27,7 +26,6 @@ export const ProductDetails: React.FC = () => {
       setSelectedImage(product.images[0]);
       setSelectedSize(product.sizes[0] || '');
       setSelectedColor(product.color[0] || '');
-      setQuantity(1);
       addToRecentlyViewed(product.id);
     }
   }, [id, product]);
@@ -60,27 +58,6 @@ export const ProductDetails: React.FC = () => {
       </div>
     );
   }
-
-  const isWishlisted = wishlist.includes(product.id);
-
-  const handleAddToCart = () => {
-    addToCart(product.id, selectedSize, selectedColor, quantity);
-    toast.success(`${product.name} added to cart! 🛍️`);
-  };
-
-  const handleBuyNow = () => {
-    addToCart(product.id, selectedSize, selectedColor, quantity);
-    navigate('/cart');
-  };
-
-  const handleWishlistToggle = () => {
-    toggleWishlist(product.id);
-    if (!isWishlisted) {
-      toast.success(`${product.name} added to wishlist! 💖`);
-    } else {
-      toast.info(`${product.name} removed from wishlist.`);
-    }
-  };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,54 +217,12 @@ export const ProductDetails: React.FC = () => {
               </div>
             )}
 
-            {/* Quantity Selector */}
-            {product.stock > 0 && (
-              <div className="mt-6">
-                <h4 className="text-xs font-bold uppercase tracking-wider mb-3">Quantity</h4>
-                <div className="flex items-center border border-brand-beige-dark/35 w-fit rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="px-3 py-2 hover:bg-brand-blush-light dark:hover:bg-brand-charcoal/40 text-brand-charcoal dark:text-brand-cream transition"
-                  >
-                    <FiMinus className="h-3.5 w-3.5" />
-                  </button>
-                  <span className="px-5 text-xs font-semibold select-none">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(q => Math.min(product.stock, q + 1))}
-                    className="px-3 py-2 hover:bg-brand-blush-light dark:hover:bg-brand-charcoal/40 text-brand-charcoal dark:text-brand-cream transition"
-                  >
-                    <FiPlus className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            )}
-
           </div>
 
-          {/* Action buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 pt-8 border-t border-brand-beige-dark/10">
-            <button
-              onClick={handleAddToCart}
-              disabled={product.stock === 0}
-              className="flex-1 bg-brand-charcoal dark:bg-brand-cream text-white dark:text-brand-charcoal font-semibold uppercase tracking-widest text-xs py-4 rounded-xl flex items-center justify-center gap-2 shadow-xs hover:shadow-md hover:bg-brand-blush-dark dark:hover:bg-brand-blush hover:text-white transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FiShoppingBag className="h-4.5 w-4.5" />
-              Add to Bag
-            </button>
-            <button
-              onClick={handleBuyNow}
-              disabled={product.stock === 0}
-              className="flex-1 bg-brand-blush text-brand-charcoal font-semibold uppercase tracking-widest text-xs py-4 rounded-xl flex items-center justify-center shadow-xs hover:shadow-md hover:bg-brand-blush-dark hover:text-white transition duration-300 disabled:opacity-50"
-            >
-              Buy Now
-            </button>
-            <button
-              onClick={handleWishlistToggle}
-              className={`p-4 rounded-xl border border-brand-beige-dark/35 flex items-center justify-center transition duration-300 ${isWishlisted ? 'bg-red-50 text-red-500 border-red-200' : 'hover:border-brand-blush-dark text-brand-charcoal dark:text-brand-cream'}`}
-              aria-label="Add to wishlist"
-            >
-              <FiHeart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
-            </button>
+          <div className="mt-8 pt-8 border-t border-brand-beige-dark/10">
+            <p className="text-xs text-brand-charcoal/50 dark:text-brand-cream/50 italic leading-relaxed">
+              Standard purchases are currently closed. For customized stitching order, please visit the Bespoke Tailoring Studio.
+            </p>
           </div>
 
         </div>

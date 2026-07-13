@@ -2,18 +2,16 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useShop } from '../context/ShopContext';
 import {
-  FiSearch, FiHeart, FiShoppingBag, FiUser,
+  FiSearch, FiUser,
   FiMenu, FiX, FiSun, FiMoon, FiArrowRight
 } from 'react-icons/fi';
 
 export const Navbar: React.FC = () => {
-  const { cart, wishlist, searchQuery, setSearchQuery, searchResults, darkMode, toggleDarkMode, user, setUser } = useShop();
+  const { searchQuery, setSearchQuery, searchResults, darkMode, toggleDarkMode, user, setUser } = useShop();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
-
-  const totalCartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,29 +127,7 @@ export const Navbar: React.FC = () => {
               {darkMode ? <FiSun className="h-5 w-5" /> : <FiMoon className="h-5 w-5" />}
             </button>
 
-            {/* Wishlist Link */}
-            {user && (
-              <Link to="/wishlist" className="relative text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark transition">
-                <FiHeart className="h-5 w-5" />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-brand-blush-dark text-[9px] font-bold text-white w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
-            )}
 
-            {/* Cart Link */}
-            {user && (
-              <Link to="/cart" className="relative text-brand-charcoal dark:text-brand-cream hover:text-brand-blush-dark transition">
-                <FiShoppingBag className="h-5 w-5" />
-                {totalCartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-brand-blush-dark text-[9px] font-bold text-white w-4 h-4 rounded-full flex items-center justify-center">
-                    {totalCartCount}
-                  </span>
-                )}
-              </Link>
-            )}
 
             {/* Profile Dropdown */}
             <div className="relative">
